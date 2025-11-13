@@ -37,11 +37,9 @@ env:
   # The URL used for the module's "Project URL" link on FoundryVTT's website.
   project_url: "https://github.com/${{github.repository}}"
 
-  # A URL that will always point to the latest manifest.
-  # FoundryVTT uses this URL to check whether the current module version that
-  # is installed is the latest version. This URL should NOT change,
-  # otherwise FoundryVTT won't be able to perform this check.
-  latest_manifest_url: "https://github.com/${{github.repository}}/releases/latest/download/module.json"
+  # The manifest URL for this specific release version.
+  # Each version should point to its own manifest file, not /latest/.
+  version_manifest_url: "https://github.com/${{github.repository}}/releases/download/${{ github.event.release.tag_name || inputs.tag_name }}/module.json"
 
   # The URL to the module archive associated with the module release being
   # processed by this workflow.
@@ -123,7 +121,7 @@ jobs:
         run: |
           jq --arg version "${{steps.get_version.outputs.version-without-v}}" \
              --arg url "${{ env.project_url }}" \
-             --arg manifest "${{ env.latest_manifest_url }}" \
+             --arg manifest "${{ env.version_manifest_url }}" \
              --arg download "${{ env.release_module_url }}" \
              '.version = $version | .url = $url | .manifest = $manifest | .download = $download' \
              module.json > module.json.tmp
